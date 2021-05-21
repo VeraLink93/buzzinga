@@ -15,45 +15,62 @@
 
 	sbi DDRD, buzz
 
-test_melody:
+; Generelles Arbeiten:
+; USART (nutzen für debugging?)
+; Speicheraufbau überlegen, dort mehrere 8-Byte-lange Melodien ablegen
+; 0B011010101
+; 0B001110010
+; 
+
+main_loop
+
+	; Vera:
+	; 1. Phase: Melodie, auf die der Pointer zeigt abspielen
+		; ldi r8, 0B00101000
+		; play_high_tone (ruft dann play_tone mit bestimmten Parametern auf)
+		; play_deep_tone
+		; durch ein Wort/Byte durch iterieren und dann je nach dem ob 0 oder 1:
+		;   -> play_high_tone oder play_deep_tone aufrufen
+
+	; Hannah:
+	; 2. Phase: Melodie einspielen. So lange wie die Melodie lang ist:
+		; wenn Knopf 0 gedrückt wird
+		;	-> eine 0 in den Speicher schreiben
+		;   -> gleichzeitig einen tiefen Ton wiedergeben
+		; wenn Knopf 1 gedrückt wird
+		;	-> eine 1 in den Speicher schreiben
+		;   -> gleichzeitig einen hohen Ton wiedergeben
+
+	; Sarah:
+	; 3. Phase: Melodien vergleichen
+		; beide Melodien vergleichen (schon jetzt möglich)
+		; (wenn die anderen fertig sind?:
+		; wenn Melodien gleich: "Pointer" auf die nächste Melodie versetzen
+		; beide Melodien mit einer Pause abspielen
+
+
+; Upgrades
+; eine Startmelodie ("richtige" Melodie)
+
+rjmp main_loop
+
+play_one_high_tone:
 	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(20000)
-	ldi r19, BYTE2(20000)
+	ldi r18, BYTE1(8000)
+	ldi r19, BYTE2(8000)
 	ldi r20, BYTE1(60)
 	ldi r21, BYTE2(60)
 	rcall play_tone
-	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(8000)
-	ldi r19, BYTE2(8000)
-	ldi r20, BYTE1(200)
-	ldi r21, BYTE2(200)
-	rcall play_tone
-	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(10000)
-	ldi r19, BYTE2(10000)
-	ldi r20, BYTE1(100)
-	ldi r21, BYTE2(100)
-	rcall play_tone
-	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(8000)
-	ldi r19, BYTE2(8000)
-	ldi r20, BYTE1(200)
-	ldi r21, BYTE2(200)
-	rcall play_tone
-	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(10000)
-	ldi r19, BYTE2(10000)
-	ldi r20, BYTE1(200)
-	ldi r21, BYTE2(200)
-	rcall play_tone
-	; set parameters before calling the function play_tone
-	ldi r18, BYTE1(6000)
-	ldi r19, BYTE2(6000)
-	ldi r20, BYTE1(200)
-	ldi r21, BYTE2(200)
-	rcall play_tone
+	ret
 
-	rjmp test_melody
+play_one_deep_tone:
+	; set parameters before calling the function play_tone
+	ldi r18, BYTE1(2000)
+	ldi r19, BYTE2(20000)
+	ldi r20, BYTE1(200)
+	ldi r21, BYTE2(200)
+	rcall play_tone
+	ret
 
 
 ; before each call of this function set these parameters!
