@@ -22,8 +22,12 @@
   <FILE>mCP_ownProject.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <test_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>18</LINE></test_melody>
-  <play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>62</LINE></play_tone>
-  <delay_function><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>80</LINE></delay_function>
+  <main_loop><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>47</LINE></main_loop>
+  <play_8bit_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>58</LINE></play_8bit_melody>
+  <loop_8bit><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>62</LINE></loop_8bit>
+  <play_one_high_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>82</LINE></play_one_high_tone>
+  <play_one_deep_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>91</LINE></play_one_deep_tone>
+  <delay_function><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>125</LINE></delay_function>
+  <play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>100</LINE></play_tone>
  </LABELS>
 </ASSEMBLER_INFO>

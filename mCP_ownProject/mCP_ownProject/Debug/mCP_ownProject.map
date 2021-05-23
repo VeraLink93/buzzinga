@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Wed May 19 09:21:01 2021
+AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Sat May 22 13:50:21 2021
 
 
 EQU  SIGNATURE_000 0000001e
@@ -696,6 +696,10 @@ EQU  TWIaddr      00000030
 EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
 EQU  buzz         00000002
-CSEG test_melody  00000001
-CSEG play_tone    00000020
-CSEG delay_function 0000002d
+CSEG main_loop    00000001
+CSEG play_8bit_melody 00000008
+CSEG loop_8bit    00000009
+CSEG play_one_high_tone 00000019
+CSEG play_one_deep_tone 0000001f
+CSEG delay_function 00000035
+CSEG play_tone    00000025
