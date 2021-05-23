@@ -5,20 +5,6 @@
 ; Author : STT
 ;
 
-; wir brauchen zwei Speicher Stapel
-; 1.Speicher: fertige Melodien ablegen
-; 2.Speicher: "eingetippte Melodien ablegen
-
-; Dann brauchen wir eine Funktion die jeweils die Werte der einzelnen Speicher vergleicht
-; bei einem Erfolgreichen vergeich kann geskipped werden
-; bei einem Erfolglosen vergleich wird die jeweilige Melodie des ersten Speichers nocheinmal wiedergegeben
-
-; Dann brauchen wir noch eine Funktion die wartet bis die eingabe erfolgt ist und dann erst vergleicht
-; Wenn der benutzer fertig ist sollte er ein Zeichen geben, zb. den Switch von low auf High setzten, das wäre das Signal das die Vergleich Funktion starten kann
-
-
-
-
 
 
 ;Speicher SRAM
