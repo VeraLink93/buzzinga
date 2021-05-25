@@ -29,7 +29,7 @@
     <eraseonlaunchrule>1</eraseonlaunchrule>
     <EraseKey />
     <avrtool>com.atmel.avrdbg.tool.medbg</avrtool>
-    <avrtoolserialnumber>ATML2323052700001095</avrtoolserialnumber>
+    <avrtoolserialnumber>ATML2323052700000454</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E950F</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_medbg>
       <ToolOptions>
@@ -38,7 +38,7 @@
         <InterfaceName>debugWIRE</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.medbg</ToolType>
-      <ToolNumber>ATML2323052700001095</ToolNumber>
+      <ToolNumber>ATML2323052700000454</ToolNumber>
       <ToolName>mEDBG</ToolName>
     </com_atmel_avrdbg_tool_medbg>
     <avrtoolinterface>debugWIRE</avrtoolinterface>
@@ -65,6 +65,17 @@
       </ToolNumber>
       <ToolName xmlns="">Custom Programming Tool</ToolName>
     </custom>
+    <com_atmel_avrdbg_tool_simulator>
+      <ToolOptions xmlns="">
+        <InterfaceProperties>
+        </InterfaceProperties>
+        <InterfaceName>debugWIRE</InterfaceName>
+      </ToolOptions>
+      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
+      <ToolNumber xmlns="">
+      </ToolNumber>
+      <ToolName xmlns="">Simulator</ToolName>
+    </com_atmel_avrdbg_tool_simulator>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>

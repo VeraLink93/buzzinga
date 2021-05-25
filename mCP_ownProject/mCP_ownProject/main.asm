@@ -42,6 +42,15 @@
 
 
 .equ buzz = 2
+.equ button0 = 3
+.equ button1 = 4
+
+.def temp0 = r24
+.def temp1 = r25
+//.def temp2 = r24
+.def counter = r26
+.def melodyLength = r27		//bei > 8 werden 2+ Register benötigt..
+.def recordedMelody = r28
 
 	sbi DDRD, buzz
 
@@ -54,14 +63,30 @@ main_loop:
 	ldi r31, 0B00100100
 	rcall play_8bit_melody
 
-	rjmp main_loop
+	//eigentlich in Phase 1
+	ldi melodyLength, 8
+	ldi recordedMelody, 0b00000000				//notwendig oder ist in Register by default 0b00000000 hinterlegt?
+
+
+	clr counter
+	;as long as melody is long, check for input (buttons)
+	while_melody:
+		;check for buttons while (counter < numberOfBitsInRegister)
+		rcall check_if_input_is_valid
+		rcall set01_in_register_and_play_tone		//set01 zur besseren Verständlichkeit, eigentlich nur set1
+
+		inc counter
+		cpi counter, melodyLength
+		brlt while_melody
+
+rjmp main_loop
 
 
 play_8bit_melody:
 ; uses r23 for looping
 ; before calling store melody byte in r31  (in demo version)
 	; to do: Befehl der Melodie aus SRAM in r31 lädt
-	ldi r23, 8							; initialize loop counter to 8
+	ldi r23, melodyLength				; initialize loop counter to 8
 	loop_8bit:
 		sbrc r31, 0						; skip if last bit in r31 is 0
 		rcall play_one_high_tone		; otherwise play one high tone
@@ -81,6 +106,59 @@ play_8bit_melody:
 	ldi r18, BYTE3(1500000)
 	rcall delay_function
 	ret
+
+check_if_input_is_valid:
+
+	//einfacher und weniger Register werden benötigt, aber cpi mit I/O Register möglich?
+	;cpi button0, 1					//"Compare with Immediate"
+	;breq
+	;rcall set0_in_register
+
+	;check if/ which buttons are pressed
+	sbic PIND, button0				;if button0 = 1, then temp0 = 1		"Skip if Bit is Cleared"
+	ldi temp0, 1						
+	sbic PIND, button1				;if button1 = 1, then temp1 = 1			
+	ldi temp1, 1
+
+	sbis PIND, button0				;if button0 = 0, then temp0 = 0		"Skip if Bit is Set"
+	ldi temp0, 0						
+	sbis PIND, button1				;if button1 = 0, then temp1 = 0
+	ldi temp1, 0
+	
+	;if no button or both buttons are pressed check again, else return
+	cpse temp0, temp1
+	ret
+	rjmp check_if_input_is_valid
+
+
+;set 0 or 1 in register recordedMelody
+set01_in_register_and_play_tone:
+	;check which button is set		//Code aus check_if_input_is_valid wiederholt sich -> bessere Lösung? -> Funktionen zusammenfassen
+	sbic PIND, button0				//"Skip if Bit in I/O Register is Cleared" 
+	ldi temp0, 1
+	sbic PIND, button1				//skip if button1 = 0
+	ldi temp1, 1
+
+	sbis PIND, button0
+	ldi temp0, 0
+	sbis PIND, button1
+	ldi temp1, 0
+	
+	cpi temp0, 1
+	brne deepTone
+
+	cpi temp1, 1
+	brne highTone
+
+	; set 1 in register recordedMelody and play tone
+	highTone:
+	ldi recordedMelody, (1<<counter)
+	rcall play_one_high_tone
+
+	deepTone:
+	rcall play_one_deep_tone
+
+	ret
 	
 play_one_high_tone:
 	; set parameters (for frequenzy + duration) before calling the function play_tone
@@ -99,6 +177,7 @@ play_one_deep_tone:
 	ldi r22, BYTE2(110)
 	rcall play_tone
 	ret
+
 
 play_tone:
 ; before each call of this function set these parameters:
