@@ -22,12 +22,17 @@
   <FILE>mCP_ownProject.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <main_loop><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>48</LINE></main_loop>
-  <play_8bit_melody><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>60</LINE></play_8bit_melody>
-  <loop_8bit><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>65</LINE></loop_8bit>
-  <play_one_high_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>85</LINE></play_one_high_tone>
-  <play_one_deep_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>94</LINE></play_one_deep_tone>
-  <delay_function><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>128</LINE></delay_function>
-  <play_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>103</LINE></play_tone>
+  <main_loop><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>58</LINE></main_loop>
+  <play_8bit_melody><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>85</LINE></play_8bit_melody>
+  <while_melody><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>73</LINE></while_melody>
+  <check_if_input_is_valid><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>110</LINE></check_if_input_is_valid>
+  <set01_in_register_and_play_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>135</LINE></set01_in_register_and_play_tone>
+  <loop_8bit><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>90</LINE></loop_8bit>
+  <play_one_high_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>166</LINE></play_one_high_tone>
+  <play_one_deep_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>175</LINE></play_one_deep_tone>
+  <delay_function><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>210</LINE></delay_function>
+  <deepTone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>160</LINE></deepTone>
+  <highTone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>154</LINE></highTone>
+  <play_tone><FILE>C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>185</LINE></play_tone>
  </LABELS>
 </ASSEMBLER_INFO>

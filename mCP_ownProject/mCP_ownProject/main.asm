@@ -45,12 +45,13 @@
 .equ button0 = 3
 .equ button1 = 4
 
+.equ melodyLength = 8		//bei > 8 werden 2+ Register benötigt..
+
 .def temp0 = r24
 .def temp1 = r25
 //.def temp2 = r24
 .def counter = r26
-.def melodyLength = r27		//bei > 8 werden 2+ Register benötigt..
-.def recordedMelody = r28
+.def recordedMelody = r27
 
 	sbi DDRD, buzz
 
@@ -64,7 +65,6 @@ main_loop:
 	rcall play_8bit_melody
 
 	//eigentlich in Phase 1
-	ldi melodyLength, 8
 	ldi recordedMelody, 0b00000000				//notwendig oder ist in Register by default 0b00000000 hinterlegt?
 
 
@@ -152,10 +152,13 @@ set01_in_register_and_play_tone:
 
 	; set 1 in register recordedMelody and play tone
 	highTone:
-	ldi recordedMelody, (1<<counter)
+	//ldi recordedMelody, (1<<counter)
+	lsl recordedMelody
+	inc recordedMelody
 	rcall play_one_high_tone
 
 	deepTone:
+	lsl recordedMelody
 	rcall play_one_deep_tone
 
 	ret
