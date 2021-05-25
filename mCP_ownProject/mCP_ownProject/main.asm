@@ -7,7 +7,7 @@
 ; r18:16 are used by the delay function
 ; r20:19 are used to set the tone frequency (good range: 5000-20000)
 ; r22:21 are used to manipulate the tone duration (is depending on the frequency as well!)
-; r31 stores a 8bit melody
+; r31 stores the original 8bit melody
 
 ;TASKS:
 	; Vera:
@@ -44,48 +44,53 @@
 .equ buzz = 2
 .equ button0 = 3
 .equ button1 = 4
-
 .equ melodyLength = 8		//bei > 8 werden 2+ Register benötigt..
 
 .def temp0 = r24
 .def temp1 = r25
-//.def temp2 = r24
 .def counter = r26
 .def recordedMelody = r27
+.def originalMelody = r31
 
 	sbi DDRD, buzz
 
 main_loop:
-	; for now just playing different 8-bit-melodies, initialisedd in r31 (demoversion for phase 1)
+/*  Testfälle für play_8bit_melody: 
 	ldi r31, 0B00101011
 	rcall play_8bit_melody
 	ldi r31, 0B10101010
 	rcall play_8bit_melody
 	ldi r31, 0B00100100
 	rcall play_8bit_melody
+*/
 
 	//eigentlich in Phase 1
 	ldi recordedMelody, 0b00000000				//notwendig oder ist in Register by default 0b00000000 hinterlegt?
-
-
 	clr counter
 	;as long as melody is long, check for input (buttons)
 	while_melody:
 		;check for buttons while (counter < numberOfBitsInRegister)
 		rcall check_if_input_is_valid
 		rcall set01_in_register_and_play_tone		//set01 zur besseren Verständlichkeit, eigentlich nur set1
-
 		inc counter
 		cpi counter, melodyLength
 		brlt while_melody
 
-rjmp main_loop
+	; make 1 sec pause between recording and play-back
+	ldi r16, BYTE1(1600000)
+	ldi r17, BYTE2(1600000)
+	ldi r18, BYTE3(1600000)
+	rcall delay_function
 
+	; play-back the recorded melody
+	mov originalMelody, recordedMelody		; set the recorded melody as parameter for the function play_8bit_melody
+	rcall play_8bit_melody					
+
+rjmp main_loop
 
 play_8bit_melody:
 ; uses r23 for looping
-; before calling store melody byte in r31  (in demo version)
-	; to do: Befehl der Melodie aus SRAM in r31 lädt
+; before calling store melody byte in r31 = parameter
 	ldi r23, melodyLength				; initialize loop counter to 8
 	loop_8bit:
 		sbrc r31, 0						; skip if last bit in r31 is 0
@@ -130,37 +135,24 @@ check_if_input_is_valid:
 	ret
 	rjmp check_if_input_is_valid
 
-
 ;set 0 or 1 in register recordedMelody
 set01_in_register_and_play_tone:
-	;check which button is set		//Code aus check_if_input_is_valid wiederholt sich -> bessere Lösung? -> Funktionen zusammenfassen
-	sbic PIND, button0				//"Skip if Bit in I/O Register is Cleared" 
-	ldi temp0, 1
-	sbic PIND, button1				//skip if button1 = 0
-	ldi temp1, 1
-
-	sbis PIND, button0
-	ldi temp0, 0
-	sbis PIND, button1
-	ldi temp1, 0
-	
 	cpi temp0, 1
-	brne deepTone
-
+	breq deepTone 
 	cpi temp1, 1
-	brne highTone
+	breq highTone
 
 	; set 1 in register recordedMelody and play tone
 	highTone:
-	//ldi recordedMelody, (1<<counter)
+	//ldi recordedMelody, (1<<counter) // Problem: counter ist keine Zahl sondern registern?! Wie lösen?!
 	lsl recordedMelody
 	inc recordedMelody
 	rcall play_one_high_tone
+	ret
 
 	deepTone:
 	lsl recordedMelody
 	rcall play_one_deep_tone
-
 	ret
 	
 play_one_high_tone:
@@ -176,11 +168,10 @@ play_one_deep_tone:
 	; set parameters (for frequenzy + duration) before calling the function play_tone
 	ldi r19, BYTE1(10000)
 	ldi r20, BYTE2(10000)
-	ldi r21, BYTE1(110)
-	ldi r22, BYTE2(110)
+	ldi r21, BYTE1(100)
+	ldi r22, BYTE2(100)
 	rcall play_tone
 	ret
-
 
 play_tone:
 ; before each call of this function set these parameters:

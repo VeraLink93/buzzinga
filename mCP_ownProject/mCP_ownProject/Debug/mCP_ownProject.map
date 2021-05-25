@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hseur\OneDrive\Dokumente\Dokumente\Hochschule Fulda\Angewandte Informatik\6. Semester\ACI\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Tue May 25 21:17:28 2021
+AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Tue May 25 23:01:53 2021
 
 
 EQU  SIGNATURE_000 0000001e
@@ -703,15 +703,16 @@ DEF  temp0        r24
 DEF  temp1        r25
 DEF  counter      r26
 DEF  recordedMelody r27
+DEF  originalMelody r31
 CSEG main_loop    00000001
-CSEG play_8bit_melody 0000000f
-CSEG while_melody 00000009
+CSEG while_melody 00000003
 CSEG check_if_input_is_valid 00000020
 CSEG set01_in_register_and_play_tone 0000002b
+CSEG delay_function 00000052
+CSEG play_8bit_melody 0000000f
 CSEG loop_8bit    00000010
-CSEG play_one_high_tone 0000003d
-CSEG play_one_deep_tone 00000043
-CSEG delay_function 00000059
-CSEG deepTone     0000003a
-CSEG highTone     00000037
-CSEG play_tone    00000049
+CSEG play_one_high_tone 00000036
+CSEG play_one_deep_tone 0000003c
+CSEG deepTone     00000033
+CSEG highTone     0000002f
+CSEG play_tone    00000042
