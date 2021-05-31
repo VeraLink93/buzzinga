@@ -3,7 +3,6 @@
 ; Created: 15.05.2021 14:31:24
 ; Author : Hannah, Sarah, Vera
 ;
-
 .equ BUZZ = 2
 .equ LED = 5
 .equ BUTTON0 = 3
@@ -15,16 +14,17 @@
 .def temp1 = r25
 //.def counter = r26
 .def recordedMelody = r27
-.def originalMelody = r31
+.def originalMelody = r31	; to be loaded from SRAM
+.def toBeplayedMelody = r30 ; parameter for play_8bit_melody
 
-.def delayParam1 = r16 ; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
-.def delayParam2 = r17 ; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
-.def delayParam3 = r18 ; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
-.def toneFreqParam1 = r19 ; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
-.def toneFreqParam2 = r20 ; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
-.def toneDurParam1 = r21 ; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
-.def toneDurParam2 = r22 ; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
-.def numberOfTones = r23 
+.def delayParam1 = r16		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+.def delayParam2 = r17		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+.def delayParam3 = r18		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+.def toneFreqParam1 = r19	; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
+.def toneFreqParam2 = r20	; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
+.def toneDurParam1 = r21	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
+.def toneDurParam2 = r22	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
+.def numberOfTones = r23	; used as loop variable in play_8bit_melody and in recording phase
 
 	sbi DDRD, BUZZ
 	sbi DDRD, LED
@@ -33,8 +33,6 @@ consts: .DB 0b10000001, 0b01010101, 0b11110000, 0b10011001, 0b00110111, 0b110110
 
 ldi ZH, HIGH(consts)		//consts<<1?
 ldi ZL, LOW(consts)
-
-;cbi DDRD , BUZZ
 
 increment_pointer: 
 	adiw Z, 1
@@ -52,6 +50,7 @@ main_loop:
 	rcall delay_function
 
 	lpm originalMelody, Z
+	mov toBeplayedMelody, originalMelody
 	rcall play_8bit_melody
 
 	ldi recordedMelody, 0b00000000
@@ -82,20 +81,20 @@ main_loop:
 
 play_8bit_melody:
 ; uses numberOfTones for looping
-; before calling store melody byte in r31 = parameter
-	ldi numberOfTones, MELODY_LENGTH				; initialize loop counter to 8
+; before calling initialized toBeplayedMelody (is cleared afterwards)
+	ldi numberOfTones, MELODY_LENGTH	; initialize loop counter to 8
 	loop_8bit:
-		sbrc r31, 0						; skip if last bit in r31 is 0
+		sbrc toBeplayedMelody, 0		; skip if last bit of melody is 0
 		rcall play_one_high_tone		; otherwise play one high tone
-		sbrs r31, 0						; skip if last bit in r31 is 1
+		sbrs toBeplayedMelody, 0		; skip if last bit of melody is 1
 		rcall play_one_deep_tone		; otherwise play one deep tone
 		; set parameters before calling the delay_function for a break after the played tone
 		ldi delayParam1, BYTE1(320000)
 		ldi delayParam2, BYTE2(320000)
 		ldi delayParam3, BYTE3(320000)
 		rcall delay_function
-		lsr r31					; shift right, so that in the next loop the next tone is played
-		dec numberOfTones					; decrement loop counter (from 8 to 0)
+		lsr toBeplayedMelody			; shift right, so that in the next loop the next tone is played
+		dec numberOfTones				; decrement loop counter (from 8 to 0)
 		brne loop_8bit
 	; set parameters before calling the delay_function for a break after the played melody
 	ldi delayParam1, BYTE1(1500000)
@@ -166,9 +165,7 @@ play_one_deep_tone:
 	ret
 
 play_tone:
-; before each call of this function set these parameters:
-; param: in toneFreqParam2:19 number of loops determing the frequency of the tone (the higher, the lower)
-; param: in toneDurParam2:21 number of loops determing the duration of the tone (the higher, the longer)
+; before each call of this function set the parameters for toneFreqParam 1+2 and toneDurParam 1+2
 	sbi PORTD, BUZZ			; turn BUZZer on
 	ldi delayParam1, 100			; sets parameter before calling delay_function
 	clr delayParam2					; sets parameter before calling delay_function
@@ -253,7 +250,6 @@ play_failure_melody:
 
 	ret
 
-
 LED_blink_once:
 	sbi PORTD, LED
 	ldi delayParam1, BYTE1(1300000)
@@ -267,8 +263,7 @@ LED_blink_once:
 	rcall delay_function
 	ret
 
-; before each call of this function set this parameter!
-; param: in delayParam3:16: number of loops this function makes, to cause a delay
+; before each call of this function set delayParam 1-3
 ; 1600 loops <=> 1 ms
 delay_function:
 	nop

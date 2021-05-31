@@ -22,17 +22,22 @@
   <FILE>mCP_ownProject.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <main_loop><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>57</LINE></main_loop>
-  <while_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>71</LINE></while_melody>
-  <check_if_input_is_valid><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>115</LINE></check_if_input_is_valid>
-  <set01_in_register_and_play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>139</LINE></set01_in_register_and_play_tone>
-  <delay_function><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>201</LINE></delay_function>
-  <play_8bit_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>91</LINE></play_8bit_melody>
-  <loop_8bit><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>95</LINE></loop_8bit>
-  <play_one_high_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>158</LINE></play_one_high_tone>
-  <play_one_deep_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>167</LINE></play_one_deep_tone>
-  <deepTone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>153</LINE></deepTone>
-  <highTone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>146</LINE></highTone>
-  <play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>176</LINE></play_tone>
+  <consts><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>32</LINE></consts>
+  <increment_pointer><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>39</LINE></increment_pointer>
+  <main_loop><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>42</LINE></main_loop>
+  <LED_blink_once><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>255</LINE></LED_blink_once>
+  <delay_function><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>270</LINE></delay_function>
+  <play_8bit_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>84</LINE></play_8bit_melody>
+  <while_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>63</LINE></while_melody>
+  <check_if_input_is_valid><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>108</LINE></check_if_input_is_valid>
+  <set01_in_register_and_play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>132</LINE></set01_in_register_and_play_tone>
+  <play_failure_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>225</LINE></play_failure_melody>
+  <play_success_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>189</LINE></play_success_melody>
+  <loop_8bit><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>88</LINE></loop_8bit>
+  <play_one_high_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>151</LINE></play_one_high_tone>
+  <play_one_deep_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>160</LINE></play_one_deep_tone>
+  <deep_Tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>146</LINE></deep_Tone>
+  <high_Tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>139</LINE></high_Tone>
+  <play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm</FILE><LINE>169</LINE></play_tone>
  </LABELS>
 </ASSEMBLER_INFO>

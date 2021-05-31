@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Tue May 25 23:01:53 2021
+AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Mon May 31 09:22:45 2021
 
 
 EQU  SIGNATURE_000 0000001e
@@ -695,24 +695,38 @@ EQU  ACIaddr      0000002e
 EQU  TWIaddr      00000030
 EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
-EQU  buzz         00000002
-EQU  button0      00000003
-EQU  button1      00000004
-EQU  melodyLength 00000008
+EQU  BUZZ         00000002
+EQU  LED          00000005
+EQU  BUTTON0      00000003
+EQU  BUTTON1      00000004
+EQU  MELODY_LENGTH 00000008
 DEF  temp0        r24
 DEF  temp1        r25
-DEF  counter      r26
 DEF  recordedMelody r27
 DEF  originalMelody r31
-CSEG main_loop    00000001
-CSEG while_melody 00000003
-CSEG check_if_input_is_valid 00000020
-CSEG set01_in_register_and_play_tone 0000002b
-CSEG delay_function 00000052
-CSEG play_8bit_melody 0000000f
-CSEG loop_8bit    00000010
-CSEG play_one_high_tone 00000036
-CSEG play_one_deep_tone 0000003c
-CSEG deepTone     00000033
-CSEG highTone     0000002f
-CSEG play_tone    00000042
+DEF  toBeplayedMelody r30
+DEF  delayParam1  r16
+DEF  delayParam2  r17
+DEF  delayParam3  r18
+DEF  toneFreqParam1 r19
+DEF  toneFreqParam2 r20
+DEF  toneDurParam1 r21
+DEF  toneDurParam2 r22
+DEF  numberOfTones r23
+CSEG consts       00000002
+CSEG increment_pointer 00000007
+CSEG main_loop    00000008
+CSEG LED_blink_once 00000096
+CSEG delay_function 000000a1
+CSEG play_8bit_melody 00000020
+CSEG while_melody 00000014
+CSEG check_if_input_is_valid 00000031
+CSEG set01_in_register_and_play_tone 0000003c
+CSEG play_failure_melody 0000007f
+CSEG play_success_melody 00000063
+CSEG loop_8bit    00000021
+CSEG play_one_high_tone 00000047
+CSEG play_one_deep_tone 0000004d
+CSEG deep_Tone    00000044
+CSEG high_Tone    00000040
+CSEG play_tone    00000053

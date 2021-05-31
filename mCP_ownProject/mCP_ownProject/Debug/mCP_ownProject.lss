@@ -1,10 +1,10 @@
 
-AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Tue May 25 23:01:53 2021
+AVRASM ver. 2.2.8  C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm Mon May 31 09:22:45 2021
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
-C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(51): warning: Register r26 already defined by the .DEF directive
-C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(52): warning: Register r27 already defined by the .DEF directive
-C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(53): warning: Register r31 already defined by the .DEF directive
+C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(16): warning: Register r27 already defined by the .DEF directive
+C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(17): warning: Register r31 already defined by the .DEF directive
+C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\main.asm(18): warning: Register r30 already defined by the .DEF directive
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
                                  
                                  ;
@@ -992,211 +992,289 @@ C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\mCP_ownProject\mCP_ownProject\mai
                                  ; Created: 15.05.2021 14:31:24
                                  ; Author : Hannah, Sarah, Vera
                                  ;
-                                 ; registers:
-                                 ; r18:16 are used by the delay function
-                                 ; r20:19 are used to set the tone frequency (good range: 5000-20000)
-                                 ; r22:21 are used to manipulate the tone duration (is depending on the frequency as well!)
-                                 ; r31 stores the original 8bit melody
+                                 .equ BUZZ = 2
+                                 .equ LED = 5
+                                 .equ BUTTON0 = 3
+                                 .equ BUTTON1 = 4
                                  
-                                 ;TASKS:
-                                 	; Vera:
-                                 	; 1. Phase: Melodie, auf die der Pointer zeigt abspielen
-                                 		; play_high_tone und play_deep_tone (ruft dann play_tone mit bestimmten Parametern auf)
-                                 		; durch ein Wort/Byte durch iterieren und dann je nach dem ob 0 oder 1:
-                                 		;   -> play_high_tone oder play_deep_tone aufrufen
-                                 
-                                 	; Hannah:
-                                 	; 2. Phase: Melodie einspielen. So lange wie die Melodie lang ist:
-                                 		; wenn Knopf 0 gedrückt wird
-                                 		;	-> eine 0 in den Speicher schreiben
-                                 		;   -> gleichzeitig einen tiefen Ton wiedergeben
-                                 		; wenn Knopf 1 gedrückt wird
-                                 		;	-> eine 1 in den Speicher schreiben
-                                 		;   -> gleichzeitig einen hohen Ton wiedergeben
-                                 
-                                 	; Sarah:
-                                 	; 3. Phase: Melodien vergleichen
-                                 		; beide Melodien vergleichen (schon jetzt möglich)
-                                 		; (wenn die anderen fertig sind?:
-                                 		; wenn Melodien gleich: "Pointer" auf die nächste Melodie versetzen
-                                 		; beide Melodien mit einer Pause abspielen
-                                 
-                                 ; Generelles Arbeiten:
-                                 ; USART (nutzen für debugging?)
-                                 ; Speicheraufbau überlegen (dort mehrere 8-Byte-lange Melodien ablegen)
-                                 ; 
-                                 ; Upgrades:
-                                 ; eine Startmelodie ("richtige" Melodie)
-                                 
-                                 
-                                 
-                                 .equ buzz = 2
-                                 .equ button0 = 3
-                                 .equ button1 = 4
-                                 .equ melodyLength = 8		//bei > 8 werden 2+ Register benötigt..
+                                 .equ MELODY_LENGTH = 8
                                  
                                  .def temp0 = r24
                                  .def temp1 = r25
-                                 .def counter = r26
+                                 //.def counter = r26
                                  .def recordedMelody = r27
-                                 .def originalMelody = r31
+                                 .def originalMelody = r31	; to be loaded from SRAM
+                                 .def toBeplayedMelody = r30 ; parameter for play_8bit_melody
                                  
-000000 9a52                      	sbi DDRD, buzz
+                                 .def delayParam1 = r16		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+                                 .def delayParam2 = r17		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+                                 .def delayParam3 = r18		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
+                                 .def toneFreqParam1 = r19	; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
+                                 .def toneFreqParam2 = r20	; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
+                                 .def toneDurParam1 = r21	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
+                                 .def toneDurParam2 = r22	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
+                                 .def numberOfTones = r23	; used as loop variable in play_8bit_melody and in recording phase
+                                 
+000000 9a52                      	sbi DDRD, BUZZ
+000001 9a55                      	sbi DDRD, LED
+                                 
+000002 5581
+000003 99f0
+000004 da37                      consts: .DB 0b10000001, 0b01010101, 0b11110000, 0b10011001, 0b00110111, 0b11011010
+                                 
+000005 e0f0                      ldi ZH, HIGH(consts)		//consts<<1?
+000006 e0e2                      ldi ZL, LOW(consts)
+                                 
+                                 ;cbi DDRD , BUZZ
+                                 
+                                 increment_pointer: 
+000007 9631                      	adiw Z, 1
                                  
                                  main_loop:
-                                 /*  Testfälle für play_8bit_melody: 
-                                 	ldi r31, 0B00101011
-                                 	rcall play_8bit_melody
-                                 	ldi r31, 0B10101010
-                                 	rcall play_8bit_melody
-                                 	ldi r31, 0B00100100
-                                 	rcall play_8bit_melody
-                                 */
+                                     
+                                 	;LED blinks twice to indicate that a melody will be played
+000008 d08d                      	rcall LED_blink_once
+000009 d08c                      	rcall LED_blink_once
                                  
-                                 	//eigentlich in Phase 1
-000001 e0b0                      	ldi recordedMelody, 0b00000000				//notwendig oder ist in Register by default 0b00000000 hinterlegt?
-000002 27aa                      	clr counter
+                                 	;pause of 1s between LED and play melody
+00000a e000                      	ldi delayParam1, BYTE1(1600000)
+00000b e61a                      	ldi delayParam2, BYTE2(1600000)
+00000c e128                      	ldi delayParam3, BYTE3(1600000)
+00000d d093                      	rcall delay_function
+                                 
+00000e 91f4                      	lpm originalMelody, Z
+00000f 2fef                      	mov toBeplayedMelody, originalMelody
+000010 d00f                      	rcall play_8bit_melody
+                                 
+000011 e0b0                      	ldi recordedMelody, 0b00000000
+000012 2777                      	clr numberOfTones
+000013 9a5d                      	sbi PORTD, LED						//turn LED on
+                                 
                                  	;as long as melody is long, check for input (buttons)
                                  	while_melody:
-                                 		;check for buttons while (counter < numberOfBitsInRegister)
-000003 d01c                      		rcall check_if_input_is_valid
-000004 d026                      		rcall set01_in_register_and_play_tone		//set01 zur besseren Verständlichkeit, eigentlich nur set1
-000005 95a3                      		inc counter
-000006 30a8                      		cpi counter, melodyLength
-000007 f3dc                      		brlt while_melody
+                                 		;check for buttons while (numberOfTones < numberOfBitsInRegister)
+000014 d01c                      		rcall check_if_input_is_valid
+000015 d026                      		rcall set01_in_register_and_play_tone
+000016 9573                      		inc numberOfTones
+000017 3078                      		cpi numberOfTones, MELODY_LENGTH
+000018 f3dc                      		brlt while_melody
+000019 985d                      	cbi PORTD, LED						//turn LED off
                                  
-                                 	; make 1 sec pause between recording and play-back
-000008 e000                      	ldi r16, BYTE1(1600000)
-000009 e61a                      	ldi r17, BYTE2(1600000)
-00000a e128                      	ldi r18, BYTE3(1600000)
-00000b d046                      	rcall delay_function
                                  
-                                 	; play-back the recorded melody
-00000c 2ffb                      	mov originalMelody, recordedMelody		; set the recorded melody as parameter for the function play_8bit_melody
-00000d d001                      	rcall play_8bit_melody					
+00001a 13fb                      	cpse originalMelody, recordedMelody 
+00001b d063                          rcall play_failure_melody
+00001c 13fb                      	cpse originalMelody, recordedMelody
+00001d cfea                      	rjmp main_loop
                                  
-00000e cff2                      rjmp main_loop
+                                 
+00001e d044                      	rcall play_success_melody
+00001f cfe7                      	rjmp increment_pointer
+                                 
+                                 
                                  
                                  play_8bit_melody:
-                                 ; uses r23 for looping
-                                 ; before calling store melody byte in r31 = parameter
-00000f e078                      	ldi r23, melodyLength				; initialize loop counter to 8
+                                 ; uses numberOfTones for looping
+                                 ; before calling initialized toBeplayedMelody, is cleared afterwards
+000020 e078                      	ldi numberOfTones, MELODY_LENGTH				; initialize loop counter to 8
                                  	loop_8bit:
-000010 fdf0                      		sbrc r31, 0						; skip if last bit in r31 is 0
-000011 d024                      		rcall play_one_high_tone		; otherwise play one high tone
-000012 fff0                      		sbrs r31, 0						; skip if last bit in r31 is 1
-000013 d028                      		rcall play_one_deep_tone		; otherwise play one deep tone
+000021 fde0                      		sbrc toBeplayedMelody, 0		; skip if last bit of melody is 0
+000022 d024                      		rcall play_one_high_tone		; otherwise play one high tone
+000023 ffe0                      		sbrs toBeplayedMelody, 0		; skip if last bit of melody is 1
+000024 d028                      		rcall play_one_deep_tone		; otherwise play one deep tone
                                  		; set parameters before calling the delay_function for a break after the played tone
-000014 e000                      		ldi r16, BYTE1(320000)
-000015 ee12                      		ldi r17, BYTE2(320000)
-000016 e024                      		ldi r18, BYTE3(320000)
-000017 d03a                      		rcall delay_function
-000018 95f6                      		lsr r31					; shift right, so that in the next loop the next tone is played
-000019 957a                      		dec r23					; decrement loop counter (from 8 to 0)
-00001a f7a9                      		brne loop_8bit
+000025 e000                      		ldi delayParam1, BYTE1(320000)
+000026 ee12                      		ldi delayParam2, BYTE2(320000)
+000027 e024                      		ldi delayParam3, BYTE3(320000)
+000028 d078                      		rcall delay_function
+000029 95e6                      		lsr toBeplayedMelody			; shift right, so that in the next loop the next tone is played
+00002a 957a                      		dec numberOfTones				; decrement loop counter (from 8 to 0)
+00002b f7a9                      		brne loop_8bit
                                  	; set parameters before calling the delay_function for a break after the played melody
-00001b e600                      	ldi r16, BYTE1(1500000)
-00001c ee13                      	ldi r17, BYTE2(1500000)
-00001d e126                      	ldi r18, BYTE3(1500000)
-00001e d033                      	rcall delay_function
-00001f 9508                      	ret
+00002c e600                      	ldi delayParam1, BYTE1(1500000)
+00002d ee13                      	ldi delayParam2, BYTE2(1500000)
+00002e e126                      	ldi delayParam3, BYTE3(1500000)
+00002f d071                      	rcall delay_function
+000030 9508                      	ret
                                  
                                  check_if_input_is_valid:
                                  
                                  	//einfacher und weniger Register werden benötigt, aber cpi mit I/O Register möglich?
-                                 	;cpi button0, 1					//"Compare with Immediate"
+                                 	;cpi BUTTON0, 1					//"Compare with Immediate"
                                  	;breq
                                  	;rcall set0_in_register
                                  
                                  	;check if/ which buttons are pressed
-000020 994b                      	sbic PIND, button0				;if button0 = 1, then temp0 = 1		"Skip if Bit is Cleared"
-000021 e081                      	ldi temp0, 1						
-000022 994c                      	sbic PIND, button1				;if button1 = 1, then temp1 = 1			
-000023 e091                      	ldi temp1, 1
+000031 994b                      	sbic PIND, BUTTON0				;if BUTTON0 = 1, then temp0 = 1		"Skip if Bit is Cleared"
+000032 e081                      	ldi temp0, 1						
+000033 994c                      	sbic PIND, BUTTON1				;if BUTTON1 = 1, then temp1 = 1			
+000034 e091                      	ldi temp1, 1
                                  
-000024 9b4b                      	sbis PIND, button0				;if button0 = 0, then temp0 = 0		"Skip if Bit is Set"
-000025 e080                      	ldi temp0, 0						
-000026 9b4c                      	sbis PIND, button1				;if button1 = 0, then temp1 = 0
-000027 e090                      	ldi temp1, 0
+000035 9b4b                      	sbis PIND, BUTTON0				;if BUTTON0 = 0, then temp0 = 0		"Skip if Bit is Set"
+000036 e080                      	ldi temp0, 0						
+000037 9b4c                      	sbis PIND, BUTTON1				;if BUTTON1 = 0, then temp1 = 0
+000038 e090                      	ldi temp1, 0
                                  	
                                  	;if no button or both buttons are pressed check again, else return
-000028 1389                      	cpse temp0, temp1
-000029 9508                      	ret
-00002a cff5                      	rjmp check_if_input_is_valid
+000039 1389                      	cpse temp0, temp1
+00003a 9508                      	ret
+00003b cff5                      	rjmp check_if_input_is_valid
                                  
                                  ;set 0 or 1 in register recordedMelody
                                  set01_in_register_and_play_tone:
-00002b 3081                      	cpi temp0, 1
-00002c f031                      	breq deepTone 
-00002d 3091                      	cpi temp1, 1
-00002e f001                      	breq highTone
+00003c 3081                      	cpi temp0, 1
+00003d f031                      	breq deep_Tone 
+00003e 3091                      	cpi temp1, 1
+00003f f001                      	breq high_Tone
                                  
                                  	; set 1 in register recordedMelody and play tone
-                                 	highTone:
+                                 	high_Tone:
                                  	//ldi recordedMelody, (1<<counter) // Problem: counter ist keine Zahl sondern registern?! Wie lösen?!
-00002f 0fbb                      	lsl recordedMelody
-000030 95b3                      	inc recordedMelody
-000031 d004                      	rcall play_one_high_tone
-000032 9508                      	ret
+000040 95b6                      	lsr recordedMelody
+000041 68b0                      	sbr recordedMelody , 0b10000000
+000042 d004                      	rcall play_one_high_tone
+000043 9508                      	ret
                                  
-                                 	deepTone:
-000033 0fbb                      	lsl recordedMelody
-000034 d007                      	rcall play_one_deep_tone
-000035 9508                      	ret
+                                 	deep_Tone:
+000044 95b6                      	lsr recordedMelody
+000045 d007                      	rcall play_one_deep_tone
+000046 9508                      	ret
                                  	
                                  play_one_high_tone:
                                  	; set parameters (for frequenzy + duration) before calling the function play_tone
-000036 e838                      	ldi r19, BYTE1(5000)
-000037 e143                      	ldi r20, BYTE2(5000)
-000038 ea5a                      	ldi r21, BYTE1(170)
-000039 e060                      	ldi r22, BYTE2(170)
-00003a d007                      	rcall play_tone
-00003b 9508                      	ret
+000047 e838                      	ldi toneFreqParam1, BYTE1(5000)
+000048 e143                      	ldi toneFreqParam2, BYTE2(5000)
+000049 ea5a                      	ldi toneDurParam1, BYTE1(170)
+00004a e060                      	ldi toneDurParam2, BYTE2(170)
+00004b d007                      	rcall play_tone
+00004c 9508                      	ret
                                  
                                  play_one_deep_tone:
                                  	; set parameters (for frequenzy + duration) before calling the function play_tone
-00003c e130                      	ldi r19, BYTE1(10000)
-00003d e247                      	ldi r20, BYTE2(10000)
-00003e e654                      	ldi r21, BYTE1(100)
-00003f e060                      	ldi r22, BYTE2(100)
-000040 d001                      	rcall play_tone
-000041 9508                      	ret
+00004d e130                      	ldi toneFreqParam1, BYTE1(10000)
+00004e e247                      	ldi toneFreqParam2, BYTE2(10000)
+00004f e654                      	ldi toneDurParam1, BYTE1(100)
+000050 e060                      	ldi toneDurParam2, BYTE2(100)
+000051 d001                      	rcall play_tone
+000052 9508                      	ret
                                  
                                  play_tone:
-                                 ; before each call of this function set these parameters:
-                                 ; param: in r20:19 number of loops determing the frequency of the tone (the higher, the lower)
-                                 ; param: in r22:21 number of loops determing the duration of the tone (the higher, the longer)
-000042 9a5a                      	sbi PORTD, buzz			; turn buzzer on
-000043 e604                      	ldi r16, 100			; sets parameter before calling delay_function
-000044 2711                      	clr r17					; sets parameter before calling delay_function
-000045 2722                      	clr r18					; sets parameter before calling delay_function
-000046 d00b                      	rcall delay_function	; delay while buzzer is on
-000047 985a                      	cbi PORTD, buzz			; turn buzzer of
-000048 2f03                      	mov r16, r19			; sets parameter before calling delay_function				Frage von Vera: warum funktionierte hier nicht movw für [r17:16]<-[r20:19] ???
-000049 2f14                      	mov r17, r20			; sets parameter before calling delay_function
-00004a 2722                      	clr r18					; sets parameter before calling delay_function
-00004b d006                      	rcall delay_function	; delay while buzzer is off
+                                 ; before each call of this function set the parameters for toneFreqParam 1+2 and toneDurParam 1+2
+000053 9a5a                      	sbi PORTD, BUZZ			; turn BUZZer on
+000054 e604                      	ldi delayParam1, 100			; sets parameter before calling delay_function
+000055 2711                      	clr delayParam2					; sets parameter before calling delay_function
+000056 2722                      	clr delayParam3					; sets parameter before calling delay_function
+000057 d049                      	rcall delay_function	; delay while BUZZer is on
+000058 985a                      	cbi PORTD, BUZZ			; turn BUZZer of
+000059 2f03                      	mov delayParam1, toneFreqParam1			; sets parameter before calling delay_function				Frage von Vera: warum funktionierte hier nicht movw für [delayParam2:16]<-[toneFreqParam2:19] ???
+00005a 2f14                      	mov delayParam2, toneFreqParam2			; sets parameter before calling delay_function
+00005b 2722                      	clr delayParam3					; sets parameter before calling delay_function
+00005c d044                      	rcall delay_function	; delay while BUZZer is off
                                  	; decrement counter for loop (counting how long the tone is played):
-00004c 9418                      	sez
-00004d 9488                      	clc
-00004e 4051                      	sbci r21, 1	
-00004f 4060                      	sbci r22, 0
-000050 f789                      	brne play_tone
-000051 9508                      	ret
+00005d 9418                      	sez
+00005e 9488                      	clc
+00005f 4051                      	sbci toneDurParam1, 1	
+000060 4060                      	sbci toneDurParam2, 0
+000061 f789                      	brne play_tone
+000062 9508                      	ret
                                  
-                                 ; before each call of this function set this parameter!
-                                 ; param: in r18:16: number of loops this function makes, to cause a delay
+                                 play_success_melody:
+000063 e000                      	ldi delayParam1, BYTE1(1600000)
+000064 e61a                      	ldi delayParam2, BYTE2(1600000)
+000065 e128                      	ldi delayParam3, BYTE3(1600000)
+000066 d03a                      	rcall delay_function
+                                 
+000067 e430                      	ldi toneFreqParam1, BYTE1(8000)
+000068 e14f                      	ldi toneFreqParam2, BYTE2(8000)
+000069 e253                      	ldi toneDurParam1, BYTE1(35)
+00006a e060                      	ldi toneDurParam2, BYTE2(35)
+00006b dfe7                      	rcall play_tone
+                                 	
+00006c e000                      	ldi delayParam1, BYTE1(1600 * 20)
+00006d e71d                      	ldi delayParam2, BYTE2(1600 * 20)
+00006e e020                      	ldi delayParam3, BYTE3(1600 * 20)
+00006f d031                      	rcall delay_function
+                                 
+000070 e430                      	ldi toneFreqParam1, BYTE1(8000)
+000071 e14f                      	ldi toneFreqParam2, BYTE2(8000)
+000072 e253                      	ldi toneDurParam1, BYTE1(35)
+000073 e060                      	ldi toneDurParam2, BYTE2(35)
+000074 dfde                      	rcall play_tone
+                                 	
+000075 e800                      	ldi delayParam1, BYTE1(1600 * 10)
+000076 e31e                      	ldi delayParam2, BYTE2(1600 * 10)
+000077 e020                      	ldi delayParam3, BYTE3(1600 * 10)
+000078 d028                      	rcall delay_function
+                                 
+000079 eb38                      	ldi toneFreqParam1, BYTE1(3000)
+00007a e04b                      	ldi toneFreqParam2, BYTE2(3000)
+00007b eb54                      	ldi toneDurParam1, BYTE1(180)
+00007c e060                      	ldi toneDurParam2, BYTE2(180)
+00007d dfd5                      	rcall play_tone
+                                 	
+00007e 9508                      	ret
+                                 
+                                 play_failure_melody:
+00007f e000                      	ldi delayParam1, BYTE1(1600000)
+000080 e61a                      	ldi delayParam2, BYTE2(1600000)
+000081 e128                      	ldi delayParam3, BYTE3(1600000)
+000082 d01e                      	rcall delay_function
+                                 
+000083 e430                      	ldi toneFreqParam1, BYTE1(8000)
+000084 e14f                      	ldi toneFreqParam2, BYTE2(8000)
+000085 e352                      	ldi toneDurParam1, BYTE1(50)
+000086 e060                      	ldi toneDurParam2, BYTE2(50)
+000087 dfcb                      	rcall play_tone
+                                 	
+000088 e800                      	ldi delayParam1, BYTE1(1600 * 10)
+000089 e31e                      	ldi delayParam2, BYTE2(1600 * 10)
+00008a e020                      	ldi delayParam3, BYTE3(1600 * 10)
+00008b d015                      	rcall delay_function
+                                 
+00008c e800                      	ldi delayParam1, BYTE1(1600 * 10)
+00008d e31e                      	ldi delayParam2, BYTE2(1600 * 10)
+00008e e020                      	ldi delayParam3, BYTE3(1600 * 10)
+00008f d011                      	rcall delay_function
+                                 
+000090 ee30                      	ldi toneFreqParam1, BYTE1(12000)
+000091 e24e                      	ldi toneFreqParam2, BYTE2(12000)
+000092 e555                      	ldi toneDurParam1, BYTE1(85)
+000093 e060                      	ldi toneDurParam2, BYTE2(85)
+000094 dfbe                      	rcall play_tone
+                                 
+000095 9508                      	ret
+                                 
+                                 LED_blink_once:
+000096 9a5d                      	sbi PORTD, LED
+000097 e200                      	ldi delayParam1, BYTE1(1300000)
+000098 ed16                      	ldi delayParam2, BYTE2(1300000)
+000099 e123                      	ldi delayParam3, BYTE3(1300000)
+00009a d006                      	rcall delay_function
+00009b 985d                      	cbi PORTD, LED
+00009c e200                      	ldi delayParam1, BYTE1(1300000)
+00009d ed16                      	ldi delayParam2, BYTE2(1300000)
+00009e e123                      	ldi delayParam3, BYTE3(1300000)
+00009f d001                      	rcall delay_function
+0000a0 9508                      	ret
+                                 
+                                 ; before each call of this function set delayParam 1-3
                                  ; 1600 loops <=> 1 ms
                                  delay_function:
-000052 0000                      	nop
-000053 0000                      	nop
-000054 0000                      	nop
-000055 9418                      	sez
-000056 9488                      	clc
-000057 4001                      	sbci r16, 1	
-000058 4010                      	sbci r17, 0
-000059 4020                      	sbci r18, 0
-00005a f7b9                      	brne delay_function
+0000a1 0000                      	nop
+0000a2 0000                      	nop
+0000a3 0000                      	nop
+0000a4 9418                      	sez
+0000a5 9488                      	clc
+0000a6 4001                      	sbci delayParam1, 1	
+0000a7 4010                      	sbci delayParam2, 0
+0000a8 4020                      	sbci delayParam3, 0
+0000a9 f7b9                      	brne delay_function
+0000aa 9508                      	ret
+                                 
+                                 
+                                 
+                                 /*	; play-back the recorded melody
+                                 	mov originalMelody, recordedMelody		; set the recorded melody as parameter for the function play_8bit_melody
+                                 	rcall play_8bit_melody					
 
 
 RESOURCE USE INFORMATION
@@ -1214,39 +1292,39 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :   2 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   6 r17:   6 r18:   6 r19:   3 r20:   3 
-r21:   3 r22:   3 r23:   2 r24:   4 r25:   4 r26:   3 r27:   5 r28:   0 
-r29:   0 r30:   0 r31:   4 
-Registers used: 13 out of 35 (37.1%)
+r13:   0 r14:   0 r15:   0 r16:  14 r17:  14 r18:  14 r19:   8 r20:   8 
+r21:   8 r22:   8 r23:   5 r24:   4 r25:   4 r26:   0 r27:   6 r28:   0 
+r29:   0 r30:   5 r31:   5 
+Registers used: 14 out of 35 (40.0%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   1 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   2 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   1 brmi  :   0 
 brne  :   3 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   1 cbr   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   3 cbr   :   0 
 clc   :   2 clh   :   0 cli   :   0 cln   :   0 clr   :   4 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   3 cpse  :   1 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   2 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  24 lds   :   0 lpm   :   0 lsl   :   2 
-lsr   :   1 mov   :   3 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+cpi   :   3 cpse  :   3 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   1 jmp   :   0 
+ld    :   0 ldd   :   0 ldi   :  70 lds   :   0 lpm   :   2 lsl   :   0 
+lsr   :   3 mov   :   3 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
 neg   :   0 nop   :   3 or    :   0 ori   :   0 out   :   0 pop   :   0 
-push  :   0 rcall :  14 ret   :   8 reti  :   0 rjmp  :   2 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   5 sbi   :   2 sbic  :   2 sbis  :   2 
-sbiw  :   0 sbr   :   0 sbrc  :   1 sbrs  :   1 sec   :   0 seh   :   0 
+push  :   0 rcall :  31 ret   :  11 reti  :   0 rjmp  :   3 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   5 sbi   :   5 sbic  :   2 sbis  :   2 
+sbiw  :   0 sbr   :   1 sbrc  :   1 sbrs  :   1 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   2 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   0 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 25 out of 113 (22.1%)
+Instructions used: 27 out of 113 (23.9%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000b8    184      0    184   32768   0.6%
+[.cseg] 0x000000 0x000156    336      6    342   32768   1.0%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
