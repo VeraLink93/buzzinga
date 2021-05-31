@@ -1,0 +1,47 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\Debug\buzzinga.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>buzzinga.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>buzzinga.map</FILE>
+  <FILE>buzzinga.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <melodies><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>33</LINE></melodies>
+  <pointer_init><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>36</LINE></pointer_init>
+  <main_loop><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>40</LINE></main_loop>
+  <LED_blink_once><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>259</LINE></LED_blink_once>
+  <delay_function><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>274</LINE></delay_function>
+  <end_game><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>148</LINE></end_game>
+  <play_8bit_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>88</LINE></play_8bit_melody>
+  <while_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>65</LINE></while_melody>
+  <check_if_input_is_valid><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>112</LINE></check_if_input_is_valid>
+  <set01_in_register_and_play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>130</LINE></set01_in_register_and_play_tone>
+  <was_success><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>79</LINE></was_success>
+  <was_failure><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>84</LINE></was_failure>
+  <play_success_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>193</LINE></play_success_melody>
+  <play_failure_melody><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>229</LINE></play_failure_melody>
+  <loop_8bit><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>92</LINE></loop_8bit>
+  <play_one_high_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>155</LINE></play_one_high_tone>
+  <play_one_deep_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>164</LINE></play_one_deep_tone>
+  <deep_Tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>143</LINE></deep_Tone>
+  <high_Tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>137</LINE></high_Tone>
+  <infinite_loop><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>152</LINE></infinite_loop>
+  <play_tone><FILE>C:\Users\Vera\Documents\AI_WPF\AI_mCP\mCP-repo\buzzinga\buzzinga\main.asm</FILE><LINE>173</LINE></play_tone>
+ </LABELS>
+</ASSEMBLER_INFO>
