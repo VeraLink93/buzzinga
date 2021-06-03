@@ -1,22 +1,21 @@
-;
+; 
 ; buzzinga.asm
-;
 ; Created: 15.05.2021 14:31:24
 ; Authors : Hannah, Sarah, Vera
-;
+
  
 .equ BUZZ = 2
 .equ LED = 5
 .equ BUTTON0 = 3
 .equ BUTTON1 = 4
+.equ SWITCH = 6
 
 .equ MELODY_LENGTH = 8
 
 .def temp0 = r24
 .def temp1 = r25
 .def recordedMelody = r27
-.def originalMelody = r31	; to be loaded from SRAM
-.def toBeplayedMelody = r30 ; parameter for play_8bit_melody
+.def originalMelody = r28	; to be loaded from SRAM
 
 .def delayParam1 = r16		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
 .def delayParam2 = r17		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
@@ -25,41 +24,48 @@
 .def toneFreqParam2 = r20	; parameter for play_tone function, defining the frequency of the tone (higher value -> deeper tone)
 .def toneDurParam1 = r21	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
 .def toneDurParam2 = r22	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
-.def numberOfTones = r23	; used as loop variable in play_8bit_melody and in recording phase
+.def numberOfTones = r23	; used for loop variable in play_8bit_melody and in recording phase
 
 	sbi DDRD, BUZZ
 	sbi DDRD, LED
-	
-melodies: 
-	.DB 0b10000001,0b11110000, 0b01010101, 0b10011001, 0b00110111, 0b11011010, 0
 
+melodies: 
+	.DB 0b01010101, 0b11110000, 0
+
+wait_until_turned_on:
+	sbis PIND, SWITCH	
+	rjmp wait_until_turned_on
+	rcall play_dummy_hello_melody	 
+	
 pointer_init:
 	ldi ZH, HIGH(melodies<<1)
 	ldi ZL, LOW(melodies<<1)
 
 main_loop:
-    
+	rcall check_if_turned_off
 	;LED blinks twice to indicate that a melody will be played
 	rcall LED_blink_once
 	rcall LED_blink_once
-
-	;pause of 1s between LED and play melody
-	ldi delayParam1, BYTE1(1600000)
-	ldi delayParam2, BYTE2(1600000)
-	ldi delayParam3, BYTE3(1600000)
-	rcall delay_function
+	rcall check_if_turned_off
 
 	; Phase 1: play original melody
 	lpm originalMelody, Z
-	tst originalMelody ;test if the last level was alredy played. (End of .db entry is 0)
-	breq end_game
-	mov toBeplayedMelody, originalMelody
+	tst originalMelody				;test if the last level was alredy played. (End of .db entry is 0)
+	breq finished_game
+	
+	; pause 1 sec for game flow purpose
+	ldi delayParam1, BYTE1(1600*1000)
+	ldi delayParam2, BYTE2(1600*1000)
+	ldi delayParam3, BYTE3(1600*1000)
+	rcall delay_function
+
+	mov temp0, originalMelody
 	rcall play_8bit_melody
 
 	; Phase 2: record play-back
-	ldi recordedMelody, 0b00000000
+	ldi recordedMelody, 0b00000000		;optional?
 	clr numberOfTones
-	sbi PORTD, LED						//turn LED on
+	sbi PORTD, LED						;turn LED on to signalize that recording phase has started
 
 	;as long as melody is long, check for input (buttons)
 	while_melody:
@@ -69,7 +75,7 @@ main_loop:
 		inc numberOfTones
 		cpi numberOfTones, MELODY_LENGTH
 		brlt while_melody
-	cbi PORTD, LED						//turn LED off
+	cbi PORTD, LED						;turn LED off to signalize that recording phase has ended
 
 	; Phase 3: compare melodies
 	cp originalMelody, recordedMelody
@@ -85,11 +91,27 @@ was_failure:
     rcall play_failure_melody
 	rjmp main_loop
 
+finished_game:
+	rcall play_success_melody
+	rcall play_success_melody
+	rcall play_success_melody
+	wait_for_restart:
+		rcall check_if_turned_off
+		rjmp wait_for_restart
+
+check_if_turned_off:
+	sbic PIND, SWITCH
+	ret								; returns if switch is still on 
+	cbi PORTD, LED					; turn LED off it device was turned off in the middle of the recording phase
+	rcall play_dummy_good_night_melody
+	rjmp wait_until_turned_on
+	
 play_8bit_melody:
 ; uses numberOfTones for looping
-; before calling move melody to temp0 (cause register is cleared afterwards)
+; before calling move melody that shall be played to temp0 (because register temp0 is cleared afterwards)
 	ldi numberOfTones, MELODY_LENGTH	; initialize loop counter to 8
 	loop_8bit:
+		rcall check_if_turned_off
 		sbrc temp0, 0				; skip if last bit of melody is 0
 		rcall play_one_high_tone	; otherwise play one high tone
 		sbrs temp0, 0				; skip if last bit of melody is 1
@@ -111,6 +133,7 @@ play_8bit_melody:
 
 check_if_input_is_valid:
 	;check if/ which buttons are pressed
+	rcall check_if_turned_off
 	sbic PIND, BUTTON0				;if BUTTON0 = 1, then temp0 = 1		"Skip if Bit is Cleared"
 	ldi temp0, 1						
 	sbic PIND, BUTTON1				;if BUTTON1 = 1, then temp1 = 1			
@@ -145,12 +168,41 @@ set01_in_register_and_play_tone:
 	rcall play_one_deep_tone
 	ret
 
-end_game:
-	rcall play_success_melody
-	rcall play_success_melody
-	rcall play_success_melody
-	infinite_loop:
-		rjmp infinite_loop
+play_dummy_hello_melody:
+; just temporarily written for debuggin purpose, to be replaced with nicer melody
+	ldi delayParam1, BYTE1(1600000)
+	ldi delayParam2, BYTE2(1600000)
+	ldi delayParam3, BYTE3(1600000)
+	rcall delay_function
+	ldi toneFreqParam1, BYTE1(8000)
+	ldi toneFreqParam2, BYTE2(8000)
+	ldi toneDurParam1, BYTE1(35)
+	ldi toneDurParam2, BYTE2(35)
+	rcall play_tone
+	ldi toneFreqParam1, BYTE1(7000)
+	ldi toneFreqParam2, BYTE2(7000)
+	ldi toneDurParam1, BYTE1(35)
+	ldi toneDurParam2, BYTE2(35)
+	rcall play_tone
+	ret
+
+play_dummy_good_night_melody:
+; just temporarily written for debuggin purpose, to be replaced with nicer melody
+	ldi delayParam1, BYTE1(1600000)
+	ldi delayParam2, BYTE2(1600000)
+	ldi delayParam3, BYTE3(1600000)
+	rcall delay_function
+	ldi toneFreqParam1, BYTE1(7000)
+	ldi toneFreqParam2, BYTE2(7000)
+	ldi toneDurParam1, BYTE1(35)
+	ldi toneDurParam2, BYTE2(35)
+	rcall play_tone
+	ldi toneFreqParam1, BYTE1(8000)
+	ldi toneFreqParam2, BYTE2(8000)
+	ldi toneDurParam1, BYTE1(35)
+	ldi toneDurParam2, BYTE2(35)
+	rcall play_tone
+	ret
 
 play_one_high_tone:
 	; set parameters (for frequenzy + duration) before calling the function play_tone
@@ -178,7 +230,7 @@ play_tone:
 	clr delayParam3			; sets parameter before calling delay_function
 	rcall delay_function	; delay while BUZZer is on
 	cbi PORTD, BUZZ			; turn BUZZer of
-	mov delayParam1, toneFreqParam1			; sets parameter before calling delay_function				Frage von Vera: warum funktionierte hier nicht movw für [delayParam2:16]<-[toneFreqParam2:19] ???
+	mov delayParam1, toneFreqParam1			; sets parameter before calling delay_function
 	mov delayParam2, toneFreqParam2			; sets parameter before calling delay_function
 	clr delayParam3			; sets parameter before calling delay_function
 	rcall delay_function	; delay while BUZZer is off
