@@ -11,7 +11,7 @@
 .equ SWITCH = 6
 
 .equ MELODY_LENGTH = 8
-.equ TIME = 15				; use this constant to change the time limit a player has to push a button (15: about 2s, 20: about 3s)
+.equ TIME = 30				; use this constant to change the time limit a player has to push a button (30: approx. 2s)
 
 .def temp0 = r24
 .def timeParam1 = r25		; parameter for time_limit function, defining the time a player has to  press a button
@@ -33,12 +33,12 @@
 	sbi DDRD, LED
 
 melodies: 
-	.DB 0b01010101, 0b11110000, 0
+	.DB 0b10101010, 0b11101110, 0b01010100, 0b11110101, 0b01001011, 0b10111001, 0b00101101, 0
 
 wait_until_turned_on:
 	sbis PIND, SWITCH	
 	rjmp wait_until_turned_on
-	rcall play_dummy_hello_melody	 
+	rcall power_on_melody	 
 	
 pointer_init:
 	ldi ZH, HIGH(melodies<<1)
@@ -90,6 +90,11 @@ main_loop:
 
 	cbi PORTD, LED						;turn LED off to signalize that recording phase has ended
 
+	ldi delayParam1, BYTE1(1600000)
+	ldi delayParam2, BYTE2(1600000)
+	ldi delayParam3, BYTE3(1600000)
+	rcall delay_function
+
 	; Phase 3: compare melodies
 	cp originalMelody, recordedMelody
 	breq was_success
@@ -116,7 +121,7 @@ check_if_turned_off:
 	sbic PIND, SWITCH
 	ret								; returns if switch is still on 
 	cbi PORTD, LED					; turn LED off it device was turned off in the middle of the recording phase
-	rcall play_dummy_good_night_melody
+	rcall shut_down_melody
 	rjmp wait_until_turned_on
 	
 play_8bit_melody:
@@ -158,7 +163,6 @@ set0_in_register_and_play_tone:
 	rcall timer_init
 	ret
 
-
 set1_in_register_and_play_tone:
 	lsr recordedMelody
 	sbr recordedMelody , 0b10000000
@@ -178,78 +182,153 @@ timer_init:
 	ldi timeParam1,	255 
 	ldi timeParam2,	255					
 	ldi temp0, 0
-	ldi counter, 0
 	ret
 
 
-; time a player has to push a button
-; now: about 2s
-; if no button is pushed, start again with same melody
-; clocks listen_to_buttons: 24
-time_limit:								// 510*255*15*clocks			-> (255 + 255) * 255 * 15 (TIME_LIMIT) * clocks instructions
+; acts as timer: a player has approximately 2s to push a button
+; called at the beginning of each loop pass of listen_to_buttons to check if time is up
+; if no button was pushed, jump to was_failure (start over with same melody)
+; number of runs of time_limit before time runs out: (255+254)*29 -> 14 761  
+;	 -> ((timeParam1 + (timeParam2-1)) * (TIME-1)
+time_limit:
 	dec timeParam1
 
 	tst timeParam1
-	breq time_Param2
+	breq dec_time_Param2
 
-	cpi temp0, TIME
-	breq inc_counter2
-
-	cpi counter, 1
+	cpi temp0, TIME				
 	breq was_failure
 	ret
 
-time_Param2:
+dec_time_Param2:
 	dec timeParam2
 	tst timeParam2
-	breq inc_counter1
+	breq inc_counter
 	ret
 
-inc_counter1:
-	inc temp0				//1
-	ldi timeParam1, 255		//1
-	ldi timeParam2, 255		//1
-	ret						//4
+inc_counter:
+	inc temp0
+	ldi timeParam1, 255
+	ldi timeParam2, 255
+	ret	
 
-inc_counter2:
-	inc counter
-	ldi temp0, 0
-	ret
-
-play_dummy_hello_melody:
-; just temporarily written for debuggin purpose, to be replaced with nicer melody
-	ldi delayParam1, BYTE1(1600000)
+power_on_melody: 
+    ldi delayParam1, BYTE1(1600000)
 	ldi delayParam2, BYTE2(1600000)
 	ldi delayParam3, BYTE3(1600000)
 	rcall delay_function
-	ldi toneFreqParam1, BYTE1(8000)
-	ldi toneFreqParam2, BYTE2(8000)
-	ldi toneDurParam1, BYTE1(35)
-	ldi toneDurParam2, BYTE2(35)
+
+	ldi toneFreqParam1, BYTE1(5230)
+	ldi toneFreqParam2, BYTE2(5230)
+	ldi toneDurParam1, BYTE1(95)
+	ldi toneDurParam2, BYTE2(95)
 	rcall play_tone
-	ldi toneFreqParam1, BYTE1(7000)
-	ldi toneFreqParam2, BYTE2(7000)
-	ldi toneDurParam1, BYTE1(35)
-	ldi toneDurParam2, BYTE2(35)
+
+	ldi toneFreqParam1, BYTE1(3920)
+	ldi toneFreqParam2, BYTE2(3920)
+	ldi toneDurParam1, BYTE1(127)
+	ldi toneDurParam2, BYTE2(127)
 	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(3300)
+	ldi toneFreqParam2, BYTE2(3300)
+	ldi toneDurParam1, BYTE1(151)
+	ldi toneDurParam2, BYTE2(151)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(4400)
+	ldi toneFreqParam2, BYTE2(4400)
+	ldi toneDurParam1, BYTE1(113)
+	ldi toneDurParam2, BYTE2(113)
+	rcall play_tone
+	
+	ldi toneFreqParam1, BYTE1(4940)
+	ldi toneFreqParam2, BYTE2(4940)
+	ldi toneDurParam1, BYTE1(101)
+	ldi toneDurParam2, BYTE2(101)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(4400)
+	ldi toneFreqParam2, BYTE2(4400)
+	ldi toneDurParam1, BYTE1(113)
+	ldi toneDurParam2, BYTE2(113)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(3920)
+	ldi toneFreqParam2, BYTE2(3920)
+	ldi toneDurParam1, BYTE1(127)
+	ldi toneDurParam2, BYTE2(127)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(4400)
+	ldi toneFreqParam2, BYTE2(4400)
+	ldi toneDurParam1, BYTE1(113)
+	ldi toneDurParam2, BYTE2(113)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(3920)
+	ldi toneFreqParam2, BYTE2(3920)
+	ldi toneDurParam1, BYTE1(127)
+	ldi toneDurParam2, BYTE2(127)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(3920)
+	ldi toneFreqParam2, BYTE2(3920)
+	ldi toneDurParam1, BYTE1(127)
+	ldi toneDurParam2, BYTE2(127)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(2940)
+	ldi toneFreqParam2, BYTE2(2940)
+	ldi toneDurParam1, BYTE1(170)
+	ldi toneDurParam2, BYTE2(170)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(3300)
+	ldi toneFreqParam2, BYTE2(3300)
+	ldi toneDurParam1, BYTE1(151)
+	ldi toneDurParam2, BYTE2(151)
+	rcall play_tone
+
 	ret
 
-play_dummy_good_night_melody:
-; just temporarily written for debuggin purpose, to be replaced with nicer melody
-	ldi delayParam1, BYTE1(1600000)
-	ldi delayParam2, BYTE2(1600000)
-	ldi delayParam3, BYTE3(1600000)
-	rcall delay_function
-	ldi toneFreqParam1, BYTE1(7000)
-	ldi toneFreqParam2, BYTE2(7000)
-	ldi toneDurParam1, BYTE1(35)
-	ldi toneDurParam2, BYTE2(35)
+shut_down_melody:
+	ldi toneFreqParam1, BYTE1(15000)
+	ldi toneFreqParam2, BYTE2(15000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
 	rcall play_tone
-	ldi toneFreqParam1, BYTE1(8000)
-	ldi toneFreqParam2, BYTE2(8000)
-	ldi toneDurParam1, BYTE1(35)
-	ldi toneDurParam2, BYTE2(35)
+
+	ldi toneFreqParam1, BYTE1(10000)
+	ldi toneFreqParam2, BYTE2(10000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
 	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(5000)
+	ldi toneFreqParam2, BYTE2(5000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(5000)
+	ldi toneFreqParam2, BYTE2(5000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(10000)
+	ldi toneFreqParam2, BYTE2(10000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
+	rcall play_tone
+
+	ldi toneFreqParam1, BYTE1(15000)
+	ldi toneFreqParam2, BYTE2(15000)
+	ldi toneDurParam1, BYTE1(30)
+	ldi toneDurParam2, BYTE2(30)
+	rcall play_tone
+
 	ret
 
 play_one_high_tone:
@@ -291,11 +370,6 @@ play_tone:
 	ret
 
 play_success_melody:
-	ldi delayParam1, BYTE1(1600000)
-	ldi delayParam2, BYTE2(1600000)
-	ldi delayParam3, BYTE3(1600000)
-	rcall delay_function
-
 	ldi toneFreqParam1, BYTE1(8000)
 	ldi toneFreqParam2, BYTE2(8000)
 	ldi toneDurParam1, BYTE1(35)
@@ -327,11 +401,6 @@ play_success_melody:
 	ret
 
 play_failure_melody:
-	ldi delayParam1, BYTE1(1600000)
-	ldi delayParam2, BYTE2(1600000)
-	ldi delayParam3, BYTE3(1600000)
-	rcall delay_function
-
 	ldi toneFreqParam1, BYTE1(8000)
 	ldi toneFreqParam2, BYTE2(8000)
 	ldi toneDurParam1, BYTE1(50)
