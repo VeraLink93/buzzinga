@@ -5,15 +5,18 @@
 
  
 .equ BUZZ = 2
-.equ LED = 5
 .equ BUTTON0 = 3
 .equ BUTTON1 = 4
+.equ LED = 5
 .equ SWITCH = 6
 
 .equ MELODY_LENGTH = 8
+.equ TIME = 15				; use this constant to change the time limit a player has to push a button (15: about 2s, 20: about 3s)
 
 .def temp0 = r24
-.def temp1 = r25
+.def timeParam1 = r25		; parameter for time_limit function, defining the time a player has to  press a button
+.def timeParam2 = r26		; parameter for time_limit function, defining the time a player has to  press a button
+.def counter = r29			; parameter for time_limit function, defining the time a player has to  press a button
 .def recordedMelody = r27
 .def originalMelody = r28	; to be loaded from SRAM
 
@@ -67,14 +70,24 @@ main_loop:
 	clr numberOfTones
 	sbi PORTD, LED						;turn LED on to signalize that recording phase has started
 
+	; init for time_limit
+	rcall timer_init
+
 	;as long as melody is long, check for input (buttons)
-	while_melody:
-		;check for buttons while (numberOfTones < numberOfBitsInRegister)
-		rcall check_if_input_is_valid
-		rcall set01_in_register_and_play_tone
-		inc numberOfTones
-		cpi numberOfTones, MELODY_LENGTH
-		brlt while_melody
+	;set 0 or 1 in register recordedMelody
+	;play high or deep tone
+	listen_to_buttons:																										//-> relevant clocks in total: between 23 and 25
+		rcall check_if_turned_off																							//3 clocks + 1/2 clocks + 4 -> 9 or 10 in total
+		rcall time_limit																									//3 clocks + ... subroutine 6 or 7 clocks -> 9 or 10 in total
+
+		sbic PIND, BUTTON0						//überspringe, wenn Button0 = 0												//1 / 2/ 3 clocks -> 1 or 2 clocks?
+		rcall set0_in_register_and_play_tone																				//-> not relevant
+		sbic PIND, BUTTON1						//überspringe, wenn Button1 = 0												//1 / 2/ 3 clocks -> 1 or 2 clocks?
+		rcall set1_in_register_and_play_tone																				//-> not relevant
+		
+		cpi numberOfTones, MELODY_LENGTH																					//1 clock
+		brlt listen_to_buttons																								//2 clocks
+
 	cbi PORTD, LED						;turn LED off to signalize that recording phase has ended
 
 	; Phase 3: compare melodies
@@ -131,41 +144,76 @@ play_8bit_melody:
 	rcall delay_function
 	ret
 
-check_if_input_is_valid:
-	;check if/ which buttons are pressed
-	rcall check_if_turned_off
-	sbic PIND, BUTTON0				;if BUTTON0 = 1, then temp0 = 1		"Skip if Bit is Cleared"
-	ldi temp0, 1						
-	sbic PIND, BUTTON1				;if BUTTON1 = 1, then temp1 = 1			
-	ldi temp1, 1
-
-	sbis PIND, BUTTON0				;if BUTTON0 = 0, then temp0 = 0		"Skip if Bit is Set"
-	ldi temp0, 0						
-	sbis PIND, BUTTON1				;if BUTTON1 = 0, then temp1 = 0
-	ldi temp1, 0
+set0_in_register_and_play_tone:
+	lsr recordedMelody
+	rcall play_one_deep_tone
+	inc numberOfTones
 	
-	;if no button or both buttons are pressed check again, else return
-	cpse temp0, temp1
+	;wait for button0 to be released
+	button0_release:
+		rcall check_if_turned_off
+		sbic PIND, BUTTON0
+		rjmp button0_release
+
+	rcall timer_init
 	ret
-	rjmp check_if_input_is_valid
 
-;set 0 or 1 in register recordedMelody
-set01_in_register_and_play_tone:
-	cpi temp0, 1
-	breq deep_Tone 
-	cpi temp1, 1
-	breq high_Tone
 
-	; set 1 in register recordedMelody and play tone
-	high_Tone:
+set1_in_register_and_play_tone:
 	lsr recordedMelody
 	sbr recordedMelody , 0b10000000
 	rcall play_one_high_tone
+	inc numberOfTones
+
+	;wait for button1 to be released
+	button1_release:
+		rcall check_if_turned_off						
+		sbic PIND, BUTTON1
+		rjmp button1_release
+	
+	rcall timer_init	
 	ret
 
-	deep_Tone:
-	lsr recordedMelody
-	rcall play_one_deep_tone
+timer_init:
+	ldi timeParam1,	255 
+	ldi timeParam2,	255					
+	ldi temp0, 0
+	ldi counter, 0
+	ret
+
+
+; time a player has to push a button
+; now: about 2s
+; if no button is pushed, start again with same melody
+; clocks listen_to_buttons: 24
+time_limit:								// 510*255*15*clocks			-> (255 + 255) * 255 * 15 (TIME_LIMIT) * clocks instructions
+	dec timeParam1
+
+	tst timeParam1
+	breq time_Param2
+
+	cpi temp0, TIME
+	breq inc_counter2
+
+	cpi counter, 1
+	breq was_failure
+	ret
+
+time_Param2:
+	dec timeParam2
+	tst timeParam2
+	breq inc_counter1
+	ret
+
+inc_counter1:
+	inc temp0				//1
+	ldi timeParam1, 255		//1
+	ldi timeParam2, 255		//1
+	ret						//4
+
+inc_counter2:
+	inc counter
+	ldi temp0, 0
 	ret
 
 play_dummy_hello_melody:
