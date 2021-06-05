@@ -5,19 +5,13 @@
 
  
 .equ BUZZ = 2
-.equ BUTTON0 = 3			; produces deep tone
-.equ BUTTON1 = 4			; procuces high tone
-.equ LED = 5				; LEDs shows the different phases of the game: blinking twice before playing original melody, stays on during recording phase
+.equ BUTTON0 = 3			; for deep tones
+.equ BUTTON1 = 4			; for high tones
+.equ LED = 5				; LEDs shows the different stages of the game: blinking twice before playing original melody, stays on during recording phase
 .equ SWITCH = 6				; used to turn the device on and off
 
 .equ MELODY_LENGTH = 8		; the melodies (both original and recorded) are of length 8
 .equ TIME = 30				; use this constant to change the time limit a player has to push a button (30: approx. 2s)
-
-.def temp0 = r24
-.def timeParam1 = r25		; parameter for time_limit function, defining the time a player has to  press a button
-.def timeParam2 = r26		; parameter for time_limit function, defining the time a player has to  press a button
-.def recordedMelody = r27	; stores the melody that the player recorded
-.def originalMelody = r28	; stores the current melodies that the player needs to play back. Is to be loaded from SRAM each new round
 
 .def delayParam1 = r16		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
 .def delayParam2 = r17		; parmeter for delay_function, defining the loops that cause a delay (1600 <=> 1ms)
@@ -27,6 +21,11 @@
 .def toneDurParam1 = r21	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
 .def toneDurParam2 = r22	; parameter for play_tone function, defining the duration of the tone (higher value + higher freq_params -> longer tone)
 .def numberOfTones = r23	; used for loop variable in play_8bit_melody and in recording phase
+.def temp0 = r24
+.def timeParam1 = r25		; parameter for time_limit function, defining the time a player has to  press a button
+.def timeParam2 = r26		; parameter for time_limit function, defining the time a player has to  press a button
+.def recordedMelody = r27	; contains the melody that the player recorded
+.def originalMelody = r28	; contains the current melodies that the player needs to play back. Is loaded from SRAM each new round
 
 	sbi DDRD, BUZZ
 	sbi DDRD, LED
@@ -34,19 +33,19 @@
 melodies:
 	.DB 0b10101010, 0b11101110, 0b01010100, 0b11110101, 0b01001011, 0b10111001, 0b00101101, 0
 
-; Loops as long as switch is turned off. 
-; If turned on continue and play welcoming melody.
+; loops as long as switch is turned off. 
+; if turned on continue and play welcoming melody.
 wait_until_turned_on:
 	sbis PIND, SWITCH	
 	rjmp wait_until_turned_on
 	rcall power_on_melody	 
 
-; Initialize pointer to the melodies
+; initialize pointer to the melodies
 pointer_init:
 	ldi ZH, HIGH(melodies<<1)
 	ldi ZL, LOW(melodies<<1)
 
-; Goes through 3 stages: playing the original melody, recording of the play-back, comparing both melodies
+; goes through 3 stages: playing the original melody, recording of the play-back, comparing both melodies
 game_loop:
 	; STAGE 1: play original melody
 	rcall check_if_turned_off		
@@ -106,15 +105,15 @@ game_loop:
 was_success:
 	rcall play_success_melody
 	adiw Z, 1					; increment Pointer so that in next round a new melody is loaded
-	rjmp game_loop				; start next round
+	rjmp game_loop				; jump back to start next round
 
 ; jumps here if the melody was not recorded correctly or the time for recording a tone is up
 was_failure:
     rcall play_failure_melody
-	rjmp game_loop				; repeat this round
+	rjmp game_loop				; jump back to repeat this round
 
-; jumps here if all 7 melodies are played back correctly
-; if device is turned of jump back to the very beginning of the code
+; jumps here if all 7 melodies are recorded correctly
+; waits if device is turned of, in that case jumps back to the very beginning
 finished_game:
 	rcall play_success_melody
 	rcall play_success_melody
@@ -124,8 +123,8 @@ finished_game:
 		rjmp wait_for_restart
 
 ; checks if the switch was turned off.
-; if so play a melody to say byebye and jump back to the beginning of the game.
-; call this subroutine in different parts of the code so that the game can be interrupted any time.
+; if so: play a melody to say goodbye and jump back to the beginning.
+; this subroutine needs to be called in different parts of the code so that the game can be interrupted at any time.
 check_if_turned_off:
 	sbic PIND, SWITCH
 	ret								; returns if switch is still on (nothing happens) 
@@ -143,7 +142,7 @@ play_8bit_melody:
 		sbrs temp0, 0				; skip if last bit of melody is 1
 		rcall play_one_deep_tone	; otherwise play one deep tone
 		
-		; set parameters before calling the delay_function for a break after the played tone
+		; short pause after the played tone
 		ldi delayParam1, BYTE1(320000)
 		ldi delayParam2, BYTE2(320000)
 		ldi delayParam3, BYTE3(320000)
@@ -153,7 +152,7 @@ play_8bit_melody:
 		dec numberOfTones			; decrement loop counter (from 8 to 0)
 		brne loop_8bit
 
-	; set parameters before calling the delay_function for a break after the played melody
+	; short pause after the played melody
 	ldi delayParam1, BYTE1(1500000)
 	ldi delayParam2, BYTE2(1500000)
 	ldi delayParam3, BYTE3(1500000)
@@ -391,7 +390,7 @@ power_off_melody:
 	ret
 
 ; melody played to indicate that the player recorded the melody correctly.
-; also called three times in a row then the player succeeded the whole game.
+; also called three times in a row when the player succeeded the whole game.
 play_success_melody:
 	ldi toneFreqParam1, BYTE1(8000)
 	ldi toneFreqParam2, BYTE2(8000)
@@ -449,7 +448,7 @@ play_failure_melody:
 
 	ret
 
-; used to signalize the player that a new stage has begun
+; used to signalize the player that a new round beginns
 LED_blink_once:
 	sbi PORTD, LED
 	ldi delayParam1, BYTE1(1300000)
